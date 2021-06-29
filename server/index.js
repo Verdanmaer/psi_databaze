@@ -11,7 +11,6 @@ app.use(cors());
 const posts = require('./routes/api/posts');
 
 app.use('/api/posts', posts);
-// app.use(express.static('server/uploads'));
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {
