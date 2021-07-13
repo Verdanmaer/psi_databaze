@@ -66,7 +66,7 @@ router.delete('/:id', async (req, res) => {
 
 async function loadPostsCollection() {
   const client = await mongodb.MongoClient.connect
-  ('mongodb+srv://adam:adam@cluster0.doni8.mongodb.net/mevn?retryWrites=true&w=majority', {
+  ('mongodb+srv://adam:mantikora@cluster0.doni8.mongodb.net/mevn?retryWrites=true&w=majority', {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
