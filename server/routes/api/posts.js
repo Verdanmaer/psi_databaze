@@ -35,6 +35,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     file: req.file,
     createdAt: new Date()
   });
+  res.status.send(201);
 });
 
 // Add Posts
