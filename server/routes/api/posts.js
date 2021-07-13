@@ -3,7 +3,6 @@ const mongodb = require('mongodb');
 const multer = require('multer');
 const path = require('path');
 
-//const upload = multer({ dest: "uploads/" });
 const router = express.Router();
 
 // Set Storage Engine
@@ -27,7 +26,6 @@ router.get('/', async (req, res) => {
   res.send(await posts.find({}).toArray());
 });
 
-
 router.post('/', upload.single('file'), async (req, res) => {
   const posts = await loadPostsCollection();
   console.log(req.body);
@@ -37,7 +35,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     file: req.file,
     createdAt: new Date()
   });
-  res.status(201).send();
+  res.status.send(201);
 });
 
 // Add Posts
@@ -75,6 +73,5 @@ async function loadPostsCollection() {
 
   return client.db('vue_express').collection('posts');
 }
-
 
 module.exports = router;
