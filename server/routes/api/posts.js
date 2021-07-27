@@ -1,31 +1,58 @@
 const express = require('express');
 const mongodb = require('mongodb');
 const multer = require('multer');
-const path = require('path');
+const multerS3 = require('multer-s3');
+const aws = require('aws-sdk');
+//const path = require('path');
+require('dotenv').config();
 
 const router = express.Router();
 
-// Set Storage Engine
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, './server/public/img');
-  },
-  filename: function(req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname).toLowerCase());
-  }
-})
-
-// Init Upload
-const upload = multer({
-  storage: storage
+const s3 = new aws.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: 'eu-central-1'
 });
 
-// Get Posts
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'psidatabaze',
+    acl: 'public-read',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString())
+    }
+  })
+})
+
+//#region Multer
+// Set Storage Engine
+// const storage = multer.diskStorage({
+//   destination: function(req, file, cb) {
+//     cb(null, './uploads');
+//   },
+//   filename: function(req, file, cb) {
+//     cb(null, Date.now() + path.extname(file.originalname).toLowerCase());
+//   }
+// })
+
+// // Init upload
+// const upload = multer({
+//   storage: storage
+// });
+//#endregion Multer
+
+// Get posts
 router.get('/', async (req, res) => {
   const posts = await loadPostsCollection();
   res.send(await posts.find({}).toArray());
 });
 
+//#region MulterPost
+// Add post
 router.post('/', upload.single('file'), async (req, res) => {
   const posts = await loadPostsCollection();
   console.log(req.body);
@@ -37,26 +64,9 @@ router.post('/', upload.single('file'), async (req, res) => {
   });
   res.status(201).send();
 });
+//#endregion MulterPost
 
-// Add Posts
-// router.post('/', async (req, res) => {
-//   const posts = await loadPostsCollection();
-//   console.log(req.body);
-//   await posts.insertOne({
-//     disappearTime: req.body.disappearTime,
-//     disappearPlace: req.body.disappearPlace,
-//     race: req.body.race,
-//     color: req.body.color,
-//     age: req.body.age,
-//     name: req.body.name,
-//     info: req.body.info,
-//     // formData: req.body.formData,
-//     createdAt: new Date()
-//   });
-//   res.status(201).send();
-// })
-
-// Delete Post
+// Delete post
 router.delete('/:id', async (req, res) => {
   const posts = await loadPostsCollection();
   await posts.deleteOne({ _id: new mongodb.ObjectID(req.params.id) });
