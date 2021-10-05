@@ -14,7 +14,20 @@ const s3 = new aws.S3({
   region: 'eu-central-1'
 });
 
+const multerFilter = function(req, file, cb) {
+  const allowedTypes = ["image/jpeg", "image/png"];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+    const error = new Error("Wrong file type");
+    error.code = "LIMIT_FILE_TYPES";
+    return cb(error, false);
+  }
+
+  cb(null, true);
+}
+
 // Handle file upload with multer-s3
+const MAX_SIZE = 5000000;
 const upload = multer({
   storage: multerS3({
     s3: s3,
@@ -26,7 +39,11 @@ const upload = multer({
     key: function (req, file, cb) {
       cb(null, Date.now().toString())
     }
-  })
+  }),
+  fileFilter: multerFilter,
+  limits: {
+    fileSize: MAX_SIZE
+  }
 });
 
 // Get posts
