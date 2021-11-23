@@ -14,6 +14,7 @@ const s3 = new aws.S3({
   region: 'eu-central-1'
 });
 
+// Handle file upload with multer-s3
 const multerFilter = function(req, file, cb) {
   const allowedTypes = ["image/jpeg", "image/png"];
 
@@ -24,9 +25,7 @@ const multerFilter = function(req, file, cb) {
   }
 
   cb(null, true);
-}
-
-// Handle file upload with multer-s3
+};
 const MAX_SIZE = 5000000;
 const upload = multer({
   storage: multerS3({
